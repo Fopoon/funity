@@ -7,8 +7,9 @@ from json import dumps, loads
 from os import chdir, getcwd, walk
 from pathlib import Path
 from platform import system
+from re import match
 from shutil import copyfile, move, rmtree
-from typing import Callable, List
+from typing import Callable, List, Tuple
 
 from funity.util import run_process
 
@@ -56,6 +57,32 @@ def __find_windows(search_dir: str) -> List[str]:
     return editor_dirs
 
 
+def __get_version_darwin(app: str) -> Tuple[int, int, int, int]:
+    version = 0, 0, 0, 0
+    version_str = str()
+
+    def log_func(line: str):
+        nonlocal version_str
+        if line.startswith(': kMDItemVersion'):
+            version_str = line.rstrip()
+
+    return_code = run_process(['mdls', app], log_func=log_func)
+
+    if return_code == 0 and version_str:
+        regex_match = match(':\\s*kMDItemVersion\\s*=\\s*"Unity version (\\d+).(\\d+).(\\d+)f(\\d+)"', version_str)
+        version = tuple(map(int, regex_match.groups()))
+
+    return version
+
+
+def __get_version_linux(app: str) -> Tuple[int, int, int, int]:
+    return 0, 0, 0, 0
+
+
+def __get_version_windows(app: str) -> Tuple[int, int, int, int]:
+    return 0, 0, 0, 0
+
+
 unity_platform = {
     'Darwin': {
         'app': 'Unity.app',
@@ -68,6 +95,7 @@ unity_platform = {
         'mono_bin': 'Unity.app/Contents/MonoBleedingEdge/bin',
         'mcs': 'Unity.app/Contents/MonoBleedingEdge/bin/mcs',
         'find': (__find_darwin, ['/Applications']),
+        'get_version': __get_version_darwin
     },
     'Linux': {
         'app': 'Editor/Unity',
@@ -80,6 +108,7 @@ unity_platform = {
         'mono_bin': 'Editor/Data/MonoBleedingEdge/bin',
         'mcs': 'Editor/Data/MonoBleedingEdge/bin/mcs',
         'find': (__find_linux, ['/opt']),
+        'get_version': __get_version_linux
     },
     'Windows': {
         'app': 'Editor/Unity.exe',
@@ -92,6 +121,7 @@ unity_platform = {
         'mono_bin': 'Editor/Data/MonoBleedingEdge/bin',
         'mcs': 'Editor/Data/MonoBleedingEdge/bin/mcs.bat',
         'find': (__find_windows, ['C:/Program Files', 'C:/Program Files (x86)']),
+        'get_version': __get_version_windows
     },
 }
 
@@ -101,12 +131,14 @@ class UnityEditor(object):
     path: Path
     exec: Path
     mcs: Path
+    version: Tuple[int, int, int, int]
 
     def __init__(self, editor_dir: str):
         sys = system()
         self.path = Path(editor_dir)
         self.exec = self.path / unity_platform[sys]['exec']
         self.mcs = self.path / unity_platform[sys]['mcs']
+        self.version = unity_platform[sys]['get_version'](str(self.path / unity_platform[sys]['app']))
 
         if not self.exec.exists():
             raise Exception('Executable not found')
