@@ -12,7 +12,8 @@ from typing import Callable, List
 
 from funity.util import run_process
 
-def __find_func_darwin(search_dir: str) -> List[str]:
+
+def __find_darwin(search_dir: str) -> List[str]:
     search_path = Path(search_dir)
     editor_dirs = []
     for root, dirs, _ in walk(search_path):
@@ -25,7 +26,7 @@ def __find_func_darwin(search_dir: str) -> List[str]:
     return editor_dirs
 
 
-def __find_func_linux(search_dir: str) -> List[str]:
+def __find_linux(search_dir: str) -> List[str]:
     search_path = Path(search_dir)
     editor_dirs = []
     for root, dirs, files in walk(search_path):
@@ -40,7 +41,7 @@ def __find_func_linux(search_dir: str) -> List[str]:
     return editor_dirs
 
 
-def __find_func_windows(search_dir: str) -> List[str]:
+def __find_windows(search_dir: str) -> List[str]:
     search_path = Path(search_dir)
     editor_dirs = []
     for root, dirs, files in walk(search_path):
@@ -65,11 +66,7 @@ unity_platform = {
         ],
         'mono_bin': 'Unity.app/Contents/MonoBleedingEdge/bin',
         'mcs': 'Unity.app/Contents/MonoBleedingEdge/bin/mcs',
-        'find': (
-            __find_func_darwin, [
-                '/Applications',
-            ]
-         ),
+        'find': (__find_darwin, ['/Applications']),
     },
     'Linux': {
         'exec': 'Editor/Unity',
@@ -80,11 +77,7 @@ unity_platform = {
         ],
         'mono_bin': 'Editor/Data/MonoBleedingEdge/bin',
         'mcs': 'Editor/Data/MonoBleedingEdge/bin/mcs',
-        'find': (
-            __find_func_linux, [
-                '/opt',
-            ]
-         ),
+        'find': (__find_linux, ['/opt']),
     },
     'Windows': {
         'exec': 'Editor/Unity.exe',
@@ -95,12 +88,7 @@ unity_platform = {
         ],
         'mono_bin': 'Editor/Data/MonoBleedingEdge/bin',
         'mcs': 'Editor/Data/MonoBleedingEdge/bin/mcs.bat',
-        'find': (
-            __find_func_windows, [
-                'C:/Program Files',
-                'C:/Program Files (x86)',
-            ]
-         ),
+        'find': (__find_windows, ['C:/Program Files', 'C:/Program Files (x86)']),
     },
 }
 
