@@ -58,6 +58,7 @@ def __find_windows(search_dir: str) -> List[str]:
 
 unity_platform = {
     'Darwin': {
+        'app': 'Unity.app',
         'exec': 'Unity.app/Contents/MacOS/Unity',
         'data': 'Unity.app/Contents',
         'libcache': [
@@ -69,6 +70,7 @@ unity_platform = {
         'find': (__find_darwin, ['/Applications']),
     },
     'Linux': {
+        'app': 'Editor/Unity',
         'exec': 'Editor/Unity',
         'data': 'Editor/Data',
         'libcache': [
@@ -80,6 +82,7 @@ unity_platform = {
         'find': (__find_linux, ['/opt']),
     },
     'Windows': {
+        'app': 'Editor/Unity.exe',
         'exec': 'Editor/Unity.exe',
         'data': 'Editor/Data',
         'libcache': [
