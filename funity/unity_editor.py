@@ -8,9 +8,9 @@ from os import chdir, getcwd, walk
 from pathlib import Path
 from platform import system
 from shutil import copyfile, move, rmtree
-from subprocess import PIPE, STDOUT, Popen
 from typing import Callable, List
 
+from funity.util import run_process
 
 def __find_func_darwin(search_dir: str) -> List[str]:
     search_path = Path(search_dir)
@@ -124,24 +124,6 @@ class UnityEditor(object):
         return str(self.path)
 
     @staticmethod
-    def __run_process(command: List[str],
-                      log_func: Callable[[str], None] = None) -> int:
-        if log_func is not None:
-            log_func(f': >> Running subprocess.. {" ".join(command)}\n')
-        with Popen(command,
-                   stderr=STDOUT,
-                   stdout=PIPE,
-                   universal_newlines=True) as process:
-            if log_func is not None:
-                for line in process.stdout:
-                    log_func(f': {line}')
-        return_code = process.returncode
-        if log_func is not None:
-            log_func(f': >> Subprocess finished with exit code {return_code}\n')
-
-        return return_code
-
-    @staticmethod
     def find_all(*args: str) -> List[UnityEditor]:
         sys = system()
         if sys not in unity_platform.keys():
@@ -253,7 +235,7 @@ class UnityEditor(object):
         command.append('*.cs')
         try:
             chdir(str(tmp_path))
-            return_code = UnityEditor.__run_process(command, log_func=log_func)
+            return_code = run_process(command, log_func=log_func)
             if return_code == 0:
                 out_path = tmp_path / out
                 if out_path.exists():
@@ -283,4 +265,4 @@ class UnityEditor(object):
                 if o not in command:
                     command.append(o)
 
-        return UnityEditor.__run_process(command, log_func=log_func)
+        return run_process(command, log_func=log_func)
