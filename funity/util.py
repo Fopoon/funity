@@ -38,4 +38,4 @@ def run_process(command: List[str],
     if log_func is not None:
         log_func(f': >> Subprocess finished with exit code {return_code}\n')
 
-        return return_code
+    return return_code
