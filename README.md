@@ -1,5 +1,7 @@
 # funity
 
+[![PyPI version](https://badge.fury.io/py/funity.svg)](https://badge.fury.io/py/funity)
+
 A Unity3d installation finder and command line helper.
 
 ## Installation
