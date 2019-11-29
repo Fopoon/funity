@@ -279,12 +279,14 @@ class UnityEditor(object):
             chdir(str(tmp_path))
             return_code = run_process(command, log_func=log_func)
             if return_code == 0:
-                out_path = tmp_path / out
-                if out_path.exists():
-                    move(str(out_path), str(cwd_path / out))
-                doc_path = tmp_path / doc
-                if doc_path.exists():
-                    move(str(doc_path), str(cwd_path / doc))
+                if out is not None:
+                    out_path = tmp_path / out
+                    if out_path.exists():
+                        move(str(out_path), str(cwd_path / out))
+                if doc is not None:
+                    doc_path = tmp_path / doc
+                    if doc_path.exists():
+                        move(str(doc_path), str(cwd_path / doc))
         finally:
             chdir(str(cwd_path))
             rmtree(str(tmp_path), ignore_errors=True)
