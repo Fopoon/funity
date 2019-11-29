@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.0.5
+
+- Added support for getting the Unity version for Windows systems.
+
 ## v0.0.4
 
 - Added UnityVersion class.
