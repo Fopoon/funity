@@ -30,11 +30,15 @@ class UnityProject(object):
     @staticmethod
     def __load_unity_yaml_file(path: Path):
         text = str()
-        with path.open() as file:
-            for line in file:
-                text += f'--- {line.split(" ")[2]}\n' if line.startswith('--- !u!') else line
+        try:
+            with path.open(encoding='UTF-8') as file:
+                for line in file:
+                    text += f'--- {line.split(" ")[2]}\n' if line.startswith('--- !u!') else line
+            return load(text, Loader=FullLoader)
 
-        return load(text, Loader=FullLoader)
+        except UnicodeDecodeError:
+            return load('data:', Loader=FullLoader)
+
 
     def __get_tag_manager(self):
         tag_manager_path = self.get_project_settings_path() / 'TagManager.asset'
