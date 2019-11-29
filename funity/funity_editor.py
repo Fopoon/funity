@@ -34,7 +34,7 @@ class FUnityEditor(UnityEditor):
     @staticmethod
     def __log(line: str):
         if line.startswith(': >> '):
-            get_logger().info(line[:-1])
+            get_logger().info(line.rstrip())
 
     def __import_run(self,
                      *args: str,
