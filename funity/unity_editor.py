@@ -81,7 +81,25 @@ def __get_version_linux(app: str) -> UnityVersion:
 
 
 def __get_version_windows(app: str) -> UnityVersion:
-    return UnityVersion(0, 0, 0, 0)
+    line_num = 1
+    version = 0, 0, 0, 0
+    version_str = str()
+
+    def log_func(line: str):
+        nonlocal line_num
+        nonlocal version_str
+        if line_num == 4:
+            version_str = line.rstrip()
+        line_num += 1
+
+    app = app.replace('\\', '\\\\')
+    return_code = run_process(['wmic', 'datafile', 'where', f'Name="{app}"', 'get', 'Version'], log_func=log_func)
+
+    if return_code == 0 and version_str:
+        regex_match = match(': (\\d+).(\\d+).(\\d+).(\\d+)', version_str)
+        version = tuple(map(int, regex_match.groups()))
+
+    return UnityVersion(*version)
 
 
 unity_platform = {
