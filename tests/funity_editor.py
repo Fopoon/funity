@@ -7,7 +7,7 @@ from unittest import TestCase
 from funity import FUnityEditor, UnityProject
 
 
-class FUnityEditorTest(TestCase):
+class FUnityEditorTestCase(TestCase):
 
     def test_set_serialization_mode(self):
 

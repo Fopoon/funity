@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from .funity_editor import FUnityEditorTest
+from .unity_version import UnityVersionTestCase
+from .funity_editor import FUnityEditorTestCase

@@ -1,9 +1,12 @@
-import unittest
+# !/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from unittest import TestCase
 
 from funity import UnityVersion
 
 
-class UnityVersionTestCase(unittest.TestCase):
+class UnityVersionTestCase(TestCase):
 
     def test_eq(self):
 
@@ -44,7 +47,3 @@ class UnityVersionTestCase(unittest.TestCase):
         self.assertTrue(a.is_equal_to(UnityVersion(4, 3, 100, 100), fuzzy=True))
         self.assertFalse(a.is_equal_to(UnityVersion(5, 3, 0, 0), fuzzy=True))
         self.assertFalse(a.is_equal_to(UnityVersion(5, 3, 100, 100), fuzzy=True))
-
-
-if __name__ == '__main__':
-    unittest.main()
