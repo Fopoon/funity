@@ -50,6 +50,17 @@ class UnityProject(object):
 
         return editor_build_settings
 
+    def __get_player_settings(self):
+        project_settings_path = self.get_project_settings_path() / 'ProjectSettings.asset'
+        if not project_settings_path.exists():
+            return None
+        yaml_object = UnityProject.__load_unity_yaml_file(project_settings_path)
+        if 'PlayerSettings' not in yaml_object:
+            return None
+        player_settings = yaml_object['PlayerSettings']
+
+        return player_settings
+
     def __get_tag_manager(self):
         tag_manager_path = self.get_project_settings_path() / 'TagManager.asset'
         if not tag_manager_path.exists():
@@ -122,6 +133,19 @@ class UnityProject(object):
 
         return str(yaml_object['m_EditorVersion']) if 'm_EditorVersion' in yaml_object else None
 
+    def get_player_settings_value(self, key: str) -> Optional[str]:
+        player_settings = self.__get_player_settings()
+        if player_settings is None or key not in player_settings:
+            return None
+
+        return player_settings[key]
+
+    def get_project_bundle_version(self) -> Optional[str]:
+        return self.get_player_settings_value('bundleVersion')
+
+    def get_project_company_name(self) -> Optional[str]:
+        return self.get_player_settings_value('companyName')
+
     def get_project_layers(self,
                            include_none: bool = False) -> Optional[List[str]]:
         tag_manager = self.__get_tag_manager()
@@ -130,6 +154,9 @@ class UnityProject(object):
         layers = tag_manager['layers']
 
         return [l for l in layers if l is not None or include_none]
+
+    def get_project_product_name(self) -> Optional[str]:
+        return self.get_player_settings_value('productName')
 
     def get_project_sorting_layers(self) -> Optional[List[str]]:
         tag_manager = self.__get_tag_manager()
