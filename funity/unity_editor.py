@@ -9,8 +9,9 @@ from pathlib import Path
 from platform import system
 from re import match
 from shutil import copyfile, move, rmtree
-from typing import Callable, List, Tuple
+from typing import Callable, List
 
+from funity.unity_version import UnityVersion
 from funity.util import run_process
 
 
@@ -57,7 +58,7 @@ def __find_windows(search_dir: str) -> List[str]:
     return editor_dirs
 
 
-def __get_version_darwin(app: str) -> Tuple[int, int, int, int]:
+def __get_version_darwin(app: str) -> UnityVersion:
     version = 0, 0, 0, 0
     version_str = str()
 
@@ -72,15 +73,15 @@ def __get_version_darwin(app: str) -> Tuple[int, int, int, int]:
         regex_match = match(':\\s*kMDItemVersion\\s*=\\s*"Unity version (\\d+).(\\d+).(\\d+)f(\\d+)"', version_str)
         version = tuple(map(int, regex_match.groups()))
 
-    return version
+    return UnityVersion(*version)
 
 
-def __get_version_linux(app: str) -> Tuple[int, int, int, int]:
-    return 0, 0, 0, 0
+def __get_version_linux(app: str) -> UnityVersion:
+    return UnityVersion(0, 0, 0, 0)
 
 
-def __get_version_windows(app: str) -> Tuple[int, int, int, int]:
-    return 0, 0, 0, 0
+def __get_version_windows(app: str) -> UnityVersion:
+    return UnityVersion(0, 0, 0, 0)
 
 
 unity_platform = {
@@ -131,7 +132,7 @@ class UnityEditor(object):
     path: Path
     exec: Path
     mcs: Path
-    version: Tuple[int, int, int, int]
+    version: UnityVersion
 
     def __init__(self, editor_dir: str):
         sys = system()
