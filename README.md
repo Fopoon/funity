@@ -26,15 +26,33 @@ python -m funity
 ### In Python
 
 ```python
+from os import getcwd
+from pathlib import Path
+
 from funity import *
 
 
-editors = UnityEditor.find_all()
+cache_dir = Path(getcwd()) / 'editor.cache'
 
-editor = editors[0]
+# Find all Unity editor installations and cache the results into 'cache_dir'.
+editors = UnityEditor.find_in(cache=str(cache_dir))
 
+version = UnityVersion(2019, 2)
+
+# Filter results to only Unity 2019.2.xfx versions.
+editors_2019_2 = [e for e in editors if e.version.is_equal_to(version, fuzzy=True)]
+
+# Throw an exception if no compatible Unity version is found.
+if not editors_2019_2:
+    raise Exception(f'No Unity {version} found.')
+
+# Get the first Unity 2019.2.xfx editor.
+editor = editors_2019_2[0]
+
+# Create a UnityProject instance.
 project = UnityProject('/Users/you/Projects/HelloWorld')
 
+# Run 'executeMethod' on the Unity project using the Unity editor CLI.
 return_code = editor.run(
     '-projectPath', str(project),
     '-buildTarget', 'Win64',

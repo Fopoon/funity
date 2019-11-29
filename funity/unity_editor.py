@@ -7,12 +7,15 @@ from json import dumps, loads
 from os import chdir, getcwd, walk
 from pathlib import Path
 from platform import system
+from re import match
 from shutil import copyfile, move, rmtree
-from subprocess import PIPE, STDOUT, Popen
 from typing import Callable, List
 
+from funity.unity_version import UnityVersion
+from funity.util import run_process
 
-def __find_func_darwin(search_dir: str) -> List[str]:
+
+def __find_darwin(search_dir: str) -> List[str]:
     search_path = Path(search_dir)
     editor_dirs = []
     for root, dirs, _ in walk(search_path):
@@ -25,7 +28,7 @@ def __find_func_darwin(search_dir: str) -> List[str]:
     return editor_dirs
 
 
-def __find_func_linux(search_dir: str) -> List[str]:
+def __find_linux(search_dir: str) -> List[str]:
     search_path = Path(search_dir)
     editor_dirs = []
     for root, dirs, files in walk(search_path):
@@ -40,7 +43,7 @@ def __find_func_linux(search_dir: str) -> List[str]:
     return editor_dirs
 
 
-def __find_func_windows(search_dir: str) -> List[str]:
+def __find_windows(search_dir: str) -> List[str]:
     search_path = Path(search_dir)
     editor_dirs = []
     for root, dirs, files in walk(search_path):
@@ -55,8 +58,35 @@ def __find_func_windows(search_dir: str) -> List[str]:
     return editor_dirs
 
 
+def __get_version_darwin(app: str) -> UnityVersion:
+    version = 0, 0, 0, 0
+    version_str = str()
+
+    def log_func(line: str):
+        nonlocal version_str
+        if line.startswith(': kMDItemVersion'):
+            version_str = line.rstrip()
+
+    return_code = run_process(['mdls', app], log_func=log_func)
+
+    if return_code == 0 and version_str:
+        regex_match = match(':\\s*kMDItemVersion\\s*=\\s*"Unity version (\\d+).(\\d+).(\\d+)f(\\d+)"', version_str)
+        version = tuple(map(int, regex_match.groups()))
+
+    return UnityVersion(*version)
+
+
+def __get_version_linux(app: str) -> UnityVersion:
+    return UnityVersion(0, 0, 0, 0)
+
+
+def __get_version_windows(app: str) -> UnityVersion:
+    return UnityVersion(0, 0, 0, 0)
+
+
 unity_platform = {
     'Darwin': {
+        'app': 'Unity.app',
         'exec': 'Unity.app/Contents/MacOS/Unity',
         'data': 'Unity.app/Contents',
         'libcache': [
@@ -65,13 +95,11 @@ unity_platform = {
         ],
         'mono_bin': 'Unity.app/Contents/MonoBleedingEdge/bin',
         'mcs': 'Unity.app/Contents/MonoBleedingEdge/bin/mcs',
-        'find': (
-            __find_func_darwin, [
-                '/Applications',
-            ]
-         ),
+        'find': (__find_darwin, ['/Applications']),
+        'get_version': __get_version_darwin
     },
     'Linux': {
+        'app': 'Editor/Unity',
         'exec': 'Editor/Unity',
         'data': 'Editor/Data',
         'libcache': [
@@ -80,13 +108,11 @@ unity_platform = {
         ],
         'mono_bin': 'Editor/Data/MonoBleedingEdge/bin',
         'mcs': 'Editor/Data/MonoBleedingEdge/bin/mcs',
-        'find': (
-            __find_func_linux, [
-                '/opt',
-            ]
-         ),
+        'find': (__find_linux, ['/opt']),
+        'get_version': __get_version_linux
     },
     'Windows': {
+        'app': 'Editor/Unity.exe',
         'exec': 'Editor/Unity.exe',
         'data': 'Editor/Data',
         'libcache': [
@@ -95,12 +121,8 @@ unity_platform = {
         ],
         'mono_bin': 'Editor/Data/MonoBleedingEdge/bin',
         'mcs': 'Editor/Data/MonoBleedingEdge/bin/mcs.bat',
-        'find': (
-            __find_func_windows, [
-                'C:/Program Files',
-                'C:/Program Files (x86)',
-            ]
-         ),
+        'find': (__find_windows, ['C:/Program Files', 'C:/Program Files (x86)']),
+        'get_version': __get_version_windows
     },
 }
 
@@ -110,36 +132,20 @@ class UnityEditor(object):
     path: Path
     exec: Path
     mcs: Path
+    version: UnityVersion
 
     def __init__(self, editor_dir: str):
         sys = system()
         self.path = Path(editor_dir)
         self.exec = self.path / unity_platform[sys]['exec']
         self.mcs = self.path / unity_platform[sys]['mcs']
+        self.version = unity_platform[sys]['get_version'](str(self.path / unity_platform[sys]['app']))
 
         if not self.exec.exists():
             raise Exception('Executable not found')
 
     def __repr__(self):
         return str(self.path)
-
-    @staticmethod
-    def __run_process(command: List[str],
-                      log_func: Callable[[str], None] = None) -> int:
-        if log_func is not None:
-            log_func(f': >> Running subprocess.. {" ".join(command)}\n')
-        with Popen(command,
-                   stderr=STDOUT,
-                   stdout=PIPE,
-                   universal_newlines=True) as process:
-            if log_func is not None:
-                for line in process.stdout:
-                    log_func(f': {line}')
-        return_code = process.returncode
-        if log_func is not None:
-            log_func(f': >> Subprocess finished with exit code {return_code}\n')
-
-        return return_code
 
     @staticmethod
     def find_all(*args: str) -> List[UnityEditor]:
@@ -253,7 +259,7 @@ class UnityEditor(object):
         command.append('*.cs')
         try:
             chdir(str(tmp_path))
-            return_code = UnityEditor.__run_process(command, log_func=log_func)
+            return_code = run_process(command, log_func=log_func)
             if return_code == 0:
                 out_path = tmp_path / out
                 if out_path.exists():
@@ -283,4 +289,4 @@ class UnityEditor(object):
                 if o not in command:
                     command.append(o)
 
-        return UnityEditor.__run_process(command, log_func=log_func)
+        return run_process(command, log_func=log_func)

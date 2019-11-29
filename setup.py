@@ -5,7 +5,7 @@ from pathlib import Path
 from setuptools import find_packages, setup
 
 NAME = 'funity'
-VERSION = '0.0.1'
+VERSION = '0.0.4'
 DESCRIPTION = 'A Unity3d installation finder and a command line helper.'
 HOME = Path(__file__).parent
 README = (HOME / 'README.md').read_text()
