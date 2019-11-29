@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.0.6
+
+- Minor bug fixes.
+
 ## v0.0.5
 
 - Added support for getting the Unity version for Windows systems.
