@@ -1,6 +1,11 @@
 # funity
 
-[![PyPI version](https://badge.fury.io/py/funity.svg)](https://badge.fury.io/py/funity)
+![PyPI](https://img.shields.io/pypi/v/funity)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/funity)
+![PyPI - Status](https://img.shields.io/pypi/status/funity)
+![PyPI - License](https://img.shields.io/pypi/l/funity)
+![PyPI - Format](https://img.shields.io/pypi/format/funity)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/funity)
 
 A Unity3d installation finder and command line helper.
 
