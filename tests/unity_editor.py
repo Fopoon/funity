@@ -5,14 +5,14 @@ from pathlib import Path
 from shutil import rmtree
 from unittest import TestCase
 
-from funity import FUnityEditor, UnityProject
+from funity import UnityEditor, UnityProject
 
 
 class UnityEditorTestCase(TestCase):
 
     def test_compile(self):
 
-        editor = FUnityEditor(str(FUnityEditor.find_all()[0]))
+        editor = UnityEditor(str(UnityEditor.find_all()[0]))
 
         self.assertIsNotNone(editor)
 
