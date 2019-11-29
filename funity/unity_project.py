@@ -39,6 +39,16 @@ class UnityProject(object):
         except UnicodeDecodeError:
             return load('data:', Loader=FullLoader)
 
+    def __get_editor_build_settings(self):
+        editor_build_settings_path = self.get_project_settings_path() / 'EditorBuildSettings.asset'
+        if not editor_build_settings_path.exists():
+            return None
+        yaml_object = UnityProject.__load_unity_yaml_file(editor_build_settings_path)
+        if 'EditorBuildSettings' not in yaml_object:
+            return None
+        editor_build_settings = yaml_object['EditorBuildSettings']
+
+        return editor_build_settings
 
     def __get_tag_manager(self):
         tag_manager_path = self.get_project_settings_path() / 'TagManager.asset'
@@ -95,6 +105,14 @@ class UnityProject(object):
 
     def get_assets_path(self) -> Path:
         return self.path / 'Assets'
+
+    def get_build_scenes(self):
+        editor_build_settings = self.__get_editor_build_settings()
+        if editor_build_settings is None or 'm_Scenes' not in editor_build_settings:
+            return None
+        scenes = editor_build_settings['m_Scenes']
+
+        return [(s['path'], s['guid'], s['enabled'] > 0) for s in scenes]
 
     def get_editor_version(self) -> Optional[str]:
         project_version_path = self.get_project_settings_path() / 'ProjectVersion.txt'
