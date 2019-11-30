@@ -10,14 +10,7 @@ from yaml import FullLoader, load
 
 
 class UnityProject(object):
-    SPECIAL_DIRS = [
-        'Editor',
-        'Gizmos',
-        'Plugins',
-        'Resources',
-        'Standard Assets',
-        'StreamingAssets'
-    ]
+    SPECIAL_DIRS = ['Editor', 'Gizmos', 'Plugins', 'Resources', 'Standard Assets', 'StreamingAssets']
 
     path: Path
 
@@ -133,7 +126,7 @@ class UnityProject(object):
 
         return str(yaml_object['m_EditorVersion']) if 'm_EditorVersion' in yaml_object else None
 
-    def get_player_settings_value(self, key: str) -> Optional[str]:
+    def get_player_settings_value(self, key: str):
         player_settings = self.__get_player_settings()
         if player_settings is None or key not in player_settings:
             return None
