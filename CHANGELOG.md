@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.0.9
+
+- Added additional UnityProject helper methods.
+
 ## v0.0.8
 
 - Added more UnityProject test cases.

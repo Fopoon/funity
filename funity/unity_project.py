@@ -43,6 +43,17 @@ class UnityProject(object):
 
         return editor_build_settings
 
+    def __get_input_manager(self):
+        input_manager_path = self.get_project_settings_path() / 'InputManager.asset'
+        if not input_manager_path.exists():
+            return None
+        yaml_object = UnityProject.__load_unity_yaml_file(input_manager_path)
+        if 'InputManager' not in yaml_object:
+            return None
+        input_manager = yaml_object['InputManager']
+
+        return input_manager
+
     def __get_player_settings(self):
         project_settings_path = self.get_project_settings_path() / 'ProjectSettings.asset'
         if not project_settings_path.exists():
@@ -138,6 +149,14 @@ class UnityProject(object):
 
     def get_project_company_name(self) -> Optional[str]:
         return self.get_player_settings_value('companyName')
+
+    def get_project_input_axes(self):
+        input_manager = self.__get_input_manager()
+        if input_manager is None or 'm_Axes' not in input_manager:
+            return None
+        axes = input_manager['m_Axes']
+
+        return axes
 
     def get_project_layers(self,
                            include_none: bool = False) -> Optional[List[str]]:
