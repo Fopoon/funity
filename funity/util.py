@@ -31,8 +31,8 @@ def run_process(command: List[str],
                stderr=STDOUT,
                stdout=PIPE,
                universal_newlines=True) as process:
-        if log_func is not None:
-            for line in process.stdout:
+        for line in process.stdout:
+            if log_func is not None:
                 log_func(f': {line}')
     return_code = process.returncode
     if log_func is not None:
