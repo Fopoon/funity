@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.0.10
+
+- Minor bug fixes.
+
 ## v0.0.9
 
 - Added additional UnityProject helper methods.
