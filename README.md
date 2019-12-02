@@ -36,7 +36,7 @@ python -m funity
 from os import getcwd
 from pathlib import Path
 
-from funity import *
+from funity import UnityEditor, UnityProject, UnityVersion
 
 
 cache_dir = Path(getcwd()) / 'editor.cache'

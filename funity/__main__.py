@@ -4,7 +4,7 @@
 from os import getcwd
 from pathlib import Path
 
-from funity import *
+from funity import UnityEditor
 
 
 def main():
