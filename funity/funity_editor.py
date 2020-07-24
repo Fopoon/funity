@@ -28,8 +28,9 @@ class FUnityEditor(UnityEditor):
         asset_path = project.get_assets_path()
         dst_path = asset_path / pkg_name
         if (asset_path / pkg_name).exists():
-            raise Exception('Unable to import package')
-        copytree(str(src_path), str(dst_path))
+            raise Warning('Unable to import package, package already exists.')
+        else:
+            copytree(str(src_path), str(dst_path))
 
     @staticmethod
     def __log(line: str):
@@ -42,11 +43,27 @@ class FUnityEditor(UnityEditor):
         pkg_name, pkg_data = rsc_data
         pkg_dir = FUnityEditor.__get_package(package=pkg_name, resource_name=pkg_data)
         FUnityEditor.__import_package(project, pkg_name=pkg_name, pkg_dir=pkg_dir)
-        return_code = self.run(*args,
-                               '-projectPath', str(project),
-                               cli=True,
-                               log_func=FUnityEditor.__log)
-        project.delete_asset(pkg_name)
+        try:
+            return_code = self.run(*args,
+                                   '-projectPath', str(project),
+                                   cli=True,
+                                   log_func=FUnityEditor.__log)
+        finally:
+            project.delete_asset(pkg_name)
+
+        return return_code
+
+    def run_build_player(self,
+                         *args: str,
+                         project: UnityProject,
+                         build_target: str) -> int:
+        class_name = 'funity.BuildPlayer'
+        if build_target not in ['Android']:
+            raise Exception('Invalid BuildTarget')
+        return_code = self.__import_run(*args,
+                                        '-executeMethod',
+                                        f'{class_name}.{build_target}',
+                                        project=project)
 
         return return_code
 
