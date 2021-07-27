@@ -5,7 +5,7 @@
 ![PyPI - Status](https://img.shields.io/pypi/status/funity)
 ![PyPI - License](https://img.shields.io/pypi/l/funity)
 ![PyPI - Format](https://img.shields.io/pypi/format/funity)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/funity)
+[![PyPI - Downloads](https://pepy.tech/badge/funity)](https://pepy.tech/project/funity)
 
 A Unity3d installation finder and command line helper.
 
